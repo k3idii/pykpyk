@@ -1,9 +1,7 @@
 from StringIO import StringIO
 import struct
-import string
 import os
 
-CHUNK_SIZE = 1024
 
 
 def glue_ex(parts, delim='', preproc=None):
@@ -18,6 +16,8 @@ def glue_ex(parts, delim='', preproc=None):
 
 def unpack_ex(fmt, data, into=None):
   size = struct.calcsize(fmt)
+  if len(data) < size:
+    raise Exception("unpack_ex: too few bytes to unpack !")
   parts = struct.unpack(fmt, data)
   if not parts:
     return None
@@ -28,11 +28,7 @@ def unpack_ex(fmt, data, into=None):
   return dict((into[i], parts[i]) for i in range(len(parts)))
 
 
-class ExtStrException(Exception):
-  pass
-
-
-class ExtStr(StringIO):
+class XStr(StringIO):
   def read_n(self, n):
     d = self.read(n)
     if not d or len(d) < n:
@@ -52,10 +48,8 @@ class ExtStr(StringIO):
       return None
 
   def read_the_rest(self):
-    s = self.getLen()
-    p = self.getPos()
-    d = s - p
-    return self.read_n(d)
+    n =  self.available_bytes()
+    return self.read_n(n)
 
   def append(self, data):
     p = self.tell()
@@ -73,27 +67,29 @@ class ExtStr(StringIO):
     p = self.tell()
     self.seek(0)
     v = self.read()
-    self.seep(p)
+    self.seek(p)
     return v
 
   def dump(self):
     return self.getvalue()
 
-  def get_rest_len(self):
+  def dumpf(self, filename):
+    open(filename, 'w').write(self.getvalue())
+
+  def loadf(self, filename):
+    self.__init__(open(filename, 'r').read())
+
+  def available_bytes(self):
     org = self.tell()
     self.seek(0, os.SEEK_END)
     end = self.tell()
     self.seek(org)
-    return end
+    return end - org
 
   def get_pos(self):
     return self.tell()
 
-  def available_bytes(self):
-    return self.getLen() - self.getPos()
-
-
-  def hexDump(self, inRow=16, title=None, head=True):
+  def hex_dump(self, bytes=16, title=None, head=True):
     S = ' \n'
     if head:
       if title:
@@ -101,17 +97,17 @@ class ExtStr(StringIO):
       S += "| offset          ascii                 hex   \n"
     p = self.tell()  # save
     self.seek(0)  # rewind
-    fmt = "| 0x%08X %-" + str(inRow) + "s \t %s\n"
+    fmt = "| 0x%08X %-" + str(bytes) + "s \t %s\n"
     while True:
       of = self.tell()
-      chunk = self.read(inRow)
+      chunk = self.read(bytes)
       hx = ''
       ch = ''
       for c in list(chunk):
         ch += c if ord(c) >= 32 and ord(c) < 127 else '.'
         hx += "%02X " % ord(c)
       S += fmt % (of, ch, hx)
-      if len(chunk) < inRow:
+      if len(chunk) < bytes:
         break
     S += "| 0x%08X \n" % self.tell()
     S += "`-- \n"

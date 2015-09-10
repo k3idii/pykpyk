@@ -11,7 +11,8 @@ All stuff that boost your python ;-)
     echo "DONE! "
 
     then : 
-    import user in your python code ;-) 
+    # import user
+    in your python code ;-)
 
 
 
