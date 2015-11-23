@@ -31,7 +31,7 @@ class vis():
     for row in range(len(m)):
       r = m[row]
       for col in range(len(r)):
-        self.pix(col,row, v2c(r[col]), scale )
+        self.pixel(col,row, v2c(r[col]), scale )
     pygame.display.flip()     
 
 

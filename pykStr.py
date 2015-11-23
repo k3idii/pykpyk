@@ -3,7 +3,6 @@ import struct
 import os
 
 
-
 def glue_ex(parts, delim='', preproc=None):
   if preproc:
     if isinstance(preproc, list):
@@ -28,11 +27,11 @@ def unpack_ex(fmt, data, into=None):
   return dict((into[i], parts[i]) for i in range(len(parts)))
 
 
-class XStr(StringIO):
+class PykStr(StringIO):
   def read_n(self, n):
     d = self.read(n)
     if not d or len(d) < n:
-      raise ExtStrException("Read error : need %d bytes, got %d " % (n, len(d)))
+      raise Exception("Read error : need %d bytes, got %d " % (n, len(d)))
     return d
 
   def read_fmt(self, fmt="", into=None):
