@@ -21,17 +21,27 @@ Bunch of usefull python code
 
 
 ##datatools.py 
-  data manipulation tools, format conversion, etc
+    
+    data manipulation tools, format conversion, etc
 
 ##extstrio.py 
-  stringio + pack/unpack power, 
+  
+    stringio + pack/unpack power, 
 
 ##krypto.py
-  usefull crypto stuff, xoring str+str, str+char
+  
+    usefull crypto stuff, xoring str+str, str+char
 
 ##pygamevis.py
-  visualisation 
+  
+    visualisation 
 
-##test.py
-  Hello world ;-)
+## test.py
+  
+    Hello world ;-)
+
+## wraps.py
+  
+    Usefull wrappers. 
+
 
