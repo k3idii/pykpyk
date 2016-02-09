@@ -18,5 +18,20 @@ Bunch of usefull python code
 
 
 ## TOC :
- 
+
+
+##datatools.py 
+  data manipulation tools, format conversion, etc
+
+##extstrio.py 
+  stringio + pack/unpack power, 
+
+##krypto.py
+  usefull crypto stuff, xoring str+str, str+char
+
+##pygamevis.py
+  visualisation 
+
+##test.py
+  Hello world ;-)
 
