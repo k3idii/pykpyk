@@ -27,7 +27,32 @@ def unpack_ex(fmt, data, into=None):
   return dict((into[i], parts[i]) for i in range(len(parts)))
 
 
-class PykStr(StringIO):
+def hex_dump_fd(fd, bytes=16, title=None, head=True):
+  S = ' \n'
+  if head:
+    if title:
+      S += " .----[ %s ]----- \n" % title
+    S += "| offset          ascii                 hex   \n"
+  p = fd.tell()  # save
+  fd.seek(0)  # rewind
+  fmt = "| 0x%08X %-" + str(bytes) + "s \t %s\n"
+  while True:
+    of = fd.tell()
+    chunk = fd.read(bytes)
+    hx = ''
+    ch = ''
+    for c in list(chunk):
+      ch += c if ord(c) >= 32 and ord(c) < 127 else '.'
+      hx += "%02X " % ord(c)
+    S += fmt % (of, ch, hx)
+    if len(chunk) < bytes:
+      break
+  S += "| 0x%08X \n" % fd.tell()
+  S += "`-- \n"
+  fd.seek(p)
+  return S
+
+class ExtStrIO(StringIO):
   def read_n(self, n):
     d = self.read(n)
     if not d or len(d) < n:
@@ -88,28 +113,8 @@ class PykStr(StringIO):
   def get_pos(self):
     return self.tell()
 
-  def hex_dump(self, bytes=16, title=None, head=True):
-    S = ' \n'
-    if head:
-      if title:
-        S += " .----[ %s ]----- \n" % title
-      S += "| offset          ascii                 hex   \n"
-    p = self.tell()  # save
-    self.seek(0)  # rewind
-    fmt = "| 0x%08X %-" + str(bytes) + "s \t %s\n"
-    while True:
-      of = self.tell()
-      chunk = self.read(bytes)
-      hx = ''
-      ch = ''
-      for c in list(chunk):
-        ch += c if ord(c) >= 32 and ord(c) < 127 else '.'
-        hx += "%02X " % ord(c)
-      S += fmt % (of, ch, hx)
-      if len(chunk) < bytes:
-        break
-    S += "| 0x%08X \n" % self.tell()
-    S += "`-- \n"
-    self.seek(p)
-    return S
+  def hex_dump(self, *a, **kw):
+    hex_dump_fd(self, *a, **kw)
+
+
 
